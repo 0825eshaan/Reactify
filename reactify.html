@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reflex Master - Test Your Speed</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <style>
+    :root {
+      --primary: #4a00e0;
+      --secondary: #8e2de2;
+      --accent: #ff5252;
+      --text: #f5f5f5;
+      --dark: #121212;
+      --dark-lighter: #1e1e1e;
+      --success: #00c853;
+      --waiting: #00a1ff;
+      --danger: #ff1744;
+      --warning: #ffeb3b;
+      --fastest: #00e676;
+      --faster: #00c853;
+      --average: #ffeb3b;
+      --slower: #ff9800;
+      --slowest: #ff1744;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: var(--dark);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Animated background */
+    .animated-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+    }
+
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      background: linear-gradient(to right, var(--primary), var(--secondary));
+      animation: float 15s infinite linear;
+      opacity: 0.3;
+      filter: blur(8px);
+    }
+
+    @keyframes float {
+      0% {
+        transform: translateY(0) translateX(0) rotate(0deg);
+        opacity: 0.3;
+      }
+      50% {
+        opacity: 0.5;
+      }
+      100% {
+        transform: translateY(-1000px) translateX(500px) rotate(360deg);
+        opacity: 0.1;
+      }
+    }
+
+    .container {
+      background: rgba(30, 30, 30, 0.8);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 2rem;
+      width: 90%;
+      max-width: 900px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      overflow: hidden;
+      animation: fadeIn 0.8s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .game-header {
+      text-align: center;
+      margin-bottom: 2rem;
+      position: relative;
+    }
+
+    .game-header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(to right, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .game-header h2 {
+      color: var(--text);
+      font-size: 1.2rem;
+      font-weight: 400;
+      margin-bottom: 1rem;
+      opacity: 0.9;
+    }
+
+    .game-content {
+      display: flex;
+      flex-direction: row;
+      gap: 2rem;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    @media (max-width: 768px) {
+      .game-content {
+        flex-direction: column;
+      }
+    }
+
+    .game-text {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .game-pic {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: var(--dark-lighter);
+      padding: 1.5rem;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      transform: translateY(0);
+      transition: transform 0.3s ease;
+    }
+
+    .game-pic:hover {
+      transform: translateY(-5px);
+    }
+
+    .game-pic img {
+      width: 100%;
+      max-width: 200px;
+      height: auto;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+      object-fit: cover;
+      filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.3));
+    }
+
+    .stats-container {
+      width: 100%;
+      background: var(--dark);
+      padding: 1rem;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .stats-container p {
+      margin: 0.5rem 0;
+      font-size: 1rem;
+    }
+
+    .stats-label {
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 0.8rem !important;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    #highscore {
+      font-size: 1.8rem !important;
+      font-weight: 700;
+      color: var(--secondary);
+    }
+
+    #reflex-button {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      cursor: pointer;
+      margin: 2rem 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: var(--dark);
+      transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      transform: scale(1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    #reflex-button::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at center, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    #reflex-button:hover::before {
+      opacity: 0.5;
+    }
+
+    #reflex-button:active {
+      transform: scale(0.95);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #reflex-button.waiting {
+      background-color: var(--waiting);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(0, 161, 255, 0.7); }
+      70% { box-shadow: 0 0 0 20px rgba(0, 161, 255, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(0, 161, 255, 0); }
+    }
+
+    #reset-button {
+      background: linear-gradient(to right, var(--primary), var(--secondary));
+      color: white;
+      padding: 0.8rem 2rem;
+      border-radius: 50px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      border: none;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 5px 15px rgba(74, 0, 224, 0.3);
+    }
+
+    #reset-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(74, 0, 224, 0.5);
+    }
+
+    #reset-button:active {
+      transform: translateY(-1px);
+      box-shadow: 0 3px 10px rgba(74, 0, 224, 0.4);
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 2rem;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.8rem;
+    }
+
+    /* Performance scale */
+    .performance-scale {
+      width: 100%;
+      margin-top: 2rem;
+      padding: 1.5rem;
+      background: var(--dark-lighter);
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      display: none;
+    }
+
+    .performance-scale-header {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      text-align: center;
+      color: var(--text);
+    }
+
+    .scale-container {
+      position: relative;
+      height: 40px;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 20px;
+      margin-bottom: 1rem;
+      overflow: hidden;
+    }
+
+    .scale-segment {
+      position: absolute;
+      height: 100%;
+      top: 0;
+    }
+
+    .fastest-segment {
+      left: 0;
+      width: 20%;
+      background: var(--fastest);
+      border-radius: 20px 0 0 20px;
+    }
+
+    .faster-segment {
+      left: 20%;
+      width: 20%;
+      background: var(--faster);
+    }
+
+    .average-segment {
+      left: 40%;
+      width: 20%;
+      background: var(--average);
+    }
+
+    .slower-segment {
+      left: 60%;
+      width: 20%;
+      background: var(--slower);
+    }
+
+    .slowest-segment {
+      left: 80%;
+      width: 20%;
+      background: var(--slowest);
+      border-radius: 0 20px 20px 0;
+    }
+
+    .marker {
+      position: absolute;
+      width: 4px;
+      height: 50px;
+      background: white;
+      top: -5px;
+      transform: translateX(-50%);
+      z-index: 10;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      display: none;
+    }
+
+    .marker::after {
+      content: "";
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      background: white;
+      border-radius: 50%;
+      bottom: 5px;
+      left: 50%;
+      transform: translateX(-50%);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .scale-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 1rem;
+      padding: 0 10px;
+    }
+
+    .scale-label {
+      font-size: 0.9rem;
+      text-align: center;
+      width: 20%;
+    }
+
+    .fastest-label { color: var(--fastest); }
+    .faster-label { color: var(--faster); }
+    .average-label { color: var(--average); }
+    .slower-label { color: var(--slower); }
+    .slowest-label { color: var(--slowest); }
+
+    .performance-result {
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 1.2rem;
+      padding: 1rem;
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    @keyframes markerAppear {
+      0% { transform: translateX(-50%) scale(0.5); opacity: 0; }
+      50% { transform: translateX(-50%) scale(1.2); opacity: 1; }
+      100% { transform: translateX(-50%) scale(1); opacity: 1; }
+    }
+
+    .marker.appear {
+      animation: markerAppear 0.5s ease-out;
+    }
+  </style>
+</head>
+<body>
+  <!-- Animated background -->
+  <div class="animated-bg" id="animated-bg"></div>
+
+  <div class="container">
+    <div class="game-header">
+      <h1>Reflex Master</h1>
+      <h2>Test your reaction speed!</h2>
+    </div>
+
+    <div class="game-content">
+      <div class="game-text game-1">
+        <div id="reflex-button" class="waiting"></div>
+        <h2>Click the blue button to begin</h2>
+        <div id="reset-button">Reset</div>
+      </div>
+      
+      <div class="game-pic">
+        <div class="stats-container">
+          <p class="stats-label">Your Best Time</p>
+          <p id="highscore">None</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Performance scale -->
+    <div class="performance-scale" id="performance-scale">
+      <h3 class="performance-scale-header">Your Performance</h3>
+      <div class="scale-container">
+        <div class="scale-segment fastest-segment"></div>
+        <div class="scale-segment faster-segment"></div>
+        <div class="scale-segment average-segment"></div>
+        <div class="scale-segment slower-segment"></div>
+        <div class="scale-segment slowest-segment"></div>
+        <div class="marker" id="performance-marker"></div>
+      </div>
+      <div class="scale-labels">
+        <div class="scale-label fastest-label">Fastest<br>110ms</div>
+        <div class="scale-label faster-label">Fast<br>190ms</div>
+        <div class="scale-label average-label">Average<br>270ms</div>
+        <div class="scale-label slower-label">Slow<br>350ms</div>
+        <div class="scale-label slowest-label">Slowest<br>400ms+</div>
+      </div>
+      <div class="performance-result" id="performance-result">
+        Complete a test to see your ranking
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>© 2025 Refleactify - Test your reaction speed</p>
+    </div>
+  </div>
+
+  <script>
+    // Create animated background particles
+    function createParticles() {
+      const bg = document.getElementById('animated-bg');
+      const particleCount = 15;
+      
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
+        
+        // Random size between 50px and 200px
+        const size = Math.random() * 150 + 50;
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        
+        // Random position
+        particle.style.left = `${Math.random() * 100}%`;
+        particle.style.top = `${Math.random() * 100}%`;
+        
+        // Random animation duration between 15 and 30 seconds
+        const duration = Math.random() * 15 + 15;
+        particle.style.animationDuration = `${duration}s`;
+        
+        // Random delay
+        const delay = Math.random() * 10;
+        particle.style.animationDelay = `${delay}s`;
+        
+        bg.appendChild(particle);
+      }
+    }
+
+    // Game variables
+    var startTime;
+    var endTime;
+    var result;
+    var timer;
+    $('#reset-button').hide();
+    
+    // Calculate position for performance marker
+    function calculateMarkerPosition(time) {
+      // Constraints for the marker placement - between 110ms and 400ms
+      const minTime = 110;    // fastest time
+      const maxTime = 400;    // slowest time
+      const scaleWidth = $('.scale-container').width();
+      
+      // Constrain time between min and max
+      let constrainedTime = Math.max(minTime, Math.min(maxTime, time));
+      
+      // Calculate position as percentage
+      let positionPercentage = ((constrainedTime - minTime) / (maxTime - minTime)) * 100;
+      
+      // Return position in pixels
+      return (positionPercentage / 100) * scaleWidth;
+    }
+    
+    // Set performance ranking
+    function setPerformanceRanking(time) {
+      let resultText = "";
+      let resultColor = "";
+      
+      if (time <= 110) {
+        resultText = "Lightning Fast! You have exceptional reflexes.";
+        resultColor = "var(--fastest)";
+      } else if (time <= 190) {
+        resultText = "Very Fast! Your reflexes are better than most people.";
+        resultColor = "var(--faster)";
+      } else if (time <= 270) {
+        resultText = "Good! Your reflexes are around average.";
+        resultColor = "var(--average)";
+      } else if (time <= 350) {
+        resultText = "A bit slow. Try to focus more for better results.";
+        resultColor = "var(--slower)";
+      } else {
+        resultText = "Slow. Keep practicing to improve your reaction time!";
+        resultColor = "var(--slowest)";
+      }
+      
+      // Update the result text
+      $('#performance-result').text(resultText);
+      $('#performance-result').css('color', resultColor);
+      $('#performance-result').css('border-left', `4px solid ${resultColor}`);
+      
+      // Show and animate the marker
+      const markerPosition = calculateMarkerPosition(time);
+      $('#performance-marker').css('left', markerPosition + 'px');
+      $('#performance-marker').show();
+      $('#performance-marker').removeClass('appear');
+      setTimeout(() => {
+        $('#performance-marker').addClass('appear');
+      }, 10);
+    }
+    
+    function reflexTest() {
+      console.log("entering function reflexTest");
+      $('#reflex-button').css('background-color', 'var(--success)');
+      $('#reflex-button').removeClass('waiting');
+      $('h2').text('Click the button when it turns red');
+      var time = Math.random() * 5;
+      var ms = Math.round(time * 1000);
+      console.log("time:", ms);
+      setTimeout(trigger, ms);
+      // Remove old onclick
+      $('#reflex-button').off();
+    }
+    
+    function trigger() {
+      $('#reflex-button').css('background-color', 'var(--danger)');
+      $('h2').text('Click now!');
+      startTime = Date.now();
+      $('#reflex-button').click(endTest);
+      timer = setTimeout(gameover, 3000);
+    }
+    
+    function endTest() {
+      $('#reflex-button').css('background-color', 'var(--warning)');
+      clearTimeout(timer);
+      endTime = Date.now();
+      result = endTime - startTime;
+      console.log(result);
+      $('h2').text(`Your time: ${result} ms`);
+      $('#reflex-button').off();
+      
+      // Show performance scale
+      $('#performance-scale').fadeIn(500);
+      
+      // Update performance ranking
+      setPerformanceRanking(result);
+      
+      var currentHS = $('#highscore').text();
+      if (currentHS == 'None') {
+        $('#highscore').text(result);
+      } else if (parseInt(currentHS) > result) {
+        $('#highscore').text(result);
+        // Add a little animation for new high score
+        $('#highscore').css('color', '#00c853');
+        setTimeout(() => {
+          $('#highscore').css('color', 'var(--secondary)');
+        }, 1000);
+      }
+      $("#reset-button").show();
+    }
+    
+    function reset() {
+      $('#reflex-button').css('background-color', 'var(--waiting)');
+      $('#reflex-button').addClass('waiting');
+      $('h2').text('Click the blue button to begin');
+      $("#reflex-button").click(reflexTest);
+      $("#reset-button").hide();
+      $('#reflex-button').text('');
+    }
+    
+    function gameover() {
+      $('#reflex-button').text('Too slow!');
+      $('#reflex-button').css('background-color', '#333');
+      $('#reflex-button').off();
+      $("#reset-button").show();
+      
+      // Show performance scale with slowest rating
+      $('#performance-scale').fadeIn(500);
+      setPerformanceRanking(500); // Off the scale slow
+      $('#performance-result').text("Time's up! You didn't click in time.");
+    }
+    
+    // Initialize game and background
+    $(document).ready(function() {
+      createParticles();
+      $("#reflex-button").click(reflexTest);
+      $("#reset-button").click(reset);
+      
+      // Hide performance scale initially
+      $('#performance-scale').hide();
+    });
+  </script>
+</body>
+</html>
