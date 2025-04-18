@@ -43,7 +43,6 @@
       position: relative;
     }
 
-    /* Animated background */
     .animated-bg {
       position: absolute;
       top: 0;
@@ -280,7 +279,6 @@
       font-size: 0.8rem;
     }
 
-    /* Performance scale */
     .performance-scale {
       width: 100%;
       margin-top: 2rem;
@@ -413,12 +411,11 @@
   </style>
 </head>
 <body>
-  <!-- Animated background -->
   <div class="animated-bg" id="animated-bg"></div>
 
   <div class="container">
     <div class="game-header">
-      <h1>Reflex Master</h1>
+      <h1>Reactify</h1>
       <h2>Test your reaction speed!</h2>
     </div>
 
@@ -437,7 +434,6 @@
       </div>
     </div>
 
-    <!-- Performance scale -->
     <div class="performance-scale" id="performance-scale">
       <h3 class="performance-scale-header">Your Performance</h3>
       <div class="scale-container">
@@ -466,7 +462,6 @@
   </div>
 
   <script>
-    // Create animated background particles
     function createParticles() {
       const bg = document.getElementById('animated-bg');
       const particleCount = 15;
@@ -475,20 +470,16 @@
         const particle = document.createElement('div');
         particle.classList.add('particle');
         
-        // Random size between 50px and 200px
         const size = Math.random() * 150 + 50;
         particle.style.width = `${size}px`;
         particle.style.height = `${size}px`;
         
-        // Random position
         particle.style.left = `${Math.random() * 100}%`;
         particle.style.top = `${Math.random() * 100}%`;
-        
-        // Random animation duration between 15 and 30 seconds
+
         const duration = Math.random() * 15 + 15;
         particle.style.animationDuration = `${duration}s`;
         
-        // Random delay
         const delay = Math.random() * 10;
         particle.style.animationDelay = `${delay}s`;
         
@@ -496,31 +487,24 @@
       }
     }
 
-    // Game variables
     var startTime;
     var endTime;
     var result;
     var timer;
     $('#reset-button').hide();
     
-    // Calculate position for performance marker
     function calculateMarkerPosition(time) {
-      // Constraints for the marker placement - between 110ms and 400ms
-      const minTime = 110;    // fastest time
-      const maxTime = 400;    // slowest time
+      const minTime = 110; 
+      const maxTime = 400; 
       const scaleWidth = $('.scale-container').width();
       
-      // Constrain time between min and max
       let constrainedTime = Math.max(minTime, Math.min(maxTime, time));
-      
-      // Calculate position as percentage
       let positionPercentage = ((constrainedTime - minTime) / (maxTime - minTime)) * 100;
-      
-      // Return position in pixels
       return (positionPercentage / 100) * scaleWidth;
+
     }
     
-    // Set performance ranking
+
     function setPerformanceRanking(time) {
       let resultText = "";
       let resultColor = "";
@@ -542,12 +526,10 @@
         resultColor = "var(--slowest)";
       }
       
-      // Update the result text
       $('#performance-result').text(resultText);
       $('#performance-result').css('color', resultColor);
       $('#performance-result').css('border-left', `4px solid ${resultColor}`);
       
-      // Show and animate the marker
       const markerPosition = calculateMarkerPosition(time);
       $('#performance-marker').css('left', markerPosition + 'px');
       $('#performance-marker').show();
@@ -566,7 +548,6 @@
       var ms = Math.round(time * 1000);
       console.log("time:", ms);
       setTimeout(trigger, ms);
-      // Remove old onclick
       $('#reflex-button').off();
     }
     
@@ -586,11 +567,8 @@
       console.log(result);
       $('h2').text(`Your time: ${result} ms`);
       $('#reflex-button').off();
-      
-      // Show performance scale
       $('#performance-scale').fadeIn(500);
       
-      // Update performance ranking
       setPerformanceRanking(result);
       
       var currentHS = $('#highscore').text();
@@ -598,7 +576,6 @@
         $('#highscore').text(result);
       } else if (parseInt(currentHS) > result) {
         $('#highscore').text(result);
-        // Add a little animation for new high score
         $('#highscore').css('color', '#00c853');
         setTimeout(() => {
           $('#highscore').css('color', 'var(--secondary)');
@@ -622,19 +599,14 @@
       $('#reflex-button').off();
       $("#reset-button").show();
       
-      // Show performance scale with slowest rating
       $('#performance-scale').fadeIn(500);
-      setPerformanceRanking(500); // Off the scale slow
       $('#performance-result').text("Time's up! You didn't click in time.");
     }
     
-    // Initialize game and background
     $(document).ready(function() {
       createParticles();
       $("#reflex-button").click(reflexTest);
       $("#reset-button").click(reset);
-      
-      // Hide performance scale initially
       $('#performance-scale').hide();
     });
   </script>
