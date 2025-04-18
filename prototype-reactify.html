@@ -1,0 +1,93 @@
+<html>
+
+    <head>
+    <link rel="stylesheet" href="game.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+      <title>Top-Games</title>
+  </head>
+
+    <body>
+        <div class="container">
+            <div class="game-text game-1">
+                <h1>Game 1 : Reflexes!</h1>
+                <h2>click the blue button to begin</h2>
+                <div id="reflex-button" class="waiting"></div>
+                <h3 id='reset-button'>Reset</h3>
+            </div>
+            <div class="game-pic">
+                <img src="img/reflexes.png">
+                <p>Highscore</p>
+                <p id="highscore">None</p>
+            </div>
+        </div>
+      <script>
+        var startTime;
+        var endTime;
+        var result;
+        var timer;
+
+
+        $('#reset-button').hide();
+        
+        function reflexTest(){
+          console.log("entering function reflexTest");
+          $('#reflex-button').css('background-color', 'forestgreen')
+          $('h2').text('Click the button when it turns red')
+          var time = Math.random()*5;
+          var ms = Math.round(time*1000);
+          console.log("time:", ms);
+          setTimeout(trigger, ms);
+          //remove old onclick
+          $('#reflex-button').off();
+        }
+        
+        function trigger(){
+             $('#reflex-button').css('background-color', 'red');
+             $('h2').text('Click now!');
+             startTime = Date.now();
+             $('#reflex-button').click(endTest);
+             timer = setTimeout(gameover, 3000);
+        }
+        
+        function endTest(){
+                $('#reflex-button').css('background-color', 'yellow');
+                clearTimeout(timer);
+                endTime = Date.now();
+                result = endTime - startTime;
+                console.log(result)
+                $('h2').text(`${result} ms`);
+                $('#reflex-button').off();
+                var currentHS = $('#highscore').text();
+                if(currentHS == 'None'){
+                   $('#highscore').text(result);
+                } else if(currentHS > result){
+                   $('#highscore').text(result);
+                }
+                $("#reset-button").show();
+        }
+               
+        function reset(){
+           $('#reflex-button').css('background-color', 'deepskyblue');
+           $('h2').text('Click the blue button to begin');
+           $("#reflex-button").click(reflexTest);
+           $("#reset-button").hide();
+           $('#reflex-button').text('');
+        }
+        
+        function gameover(){
+          $('#reflex-button').text('game over');
+          $('#reflex-button').off();
+          $("#reset-button").show();
+        }
+        
+        
+        
+        $("#reflex-button").click(reflexTest);
+        $("#reset-button").click(reset);
+        
+
+       
+      </script>
+    </body>
+
+</html>
