@@ -32,12 +32,11 @@
         function reflexTest(){
           console.log("entering function reflexTest");
           $('#reflex-button').css('background-color', 'forestgreen')
-          $('h2').text('Click the button when it turns red')
+          $('h2').text('Click the button when it turns red!')
           var time = Math.random()*5;
           var ms = Math.round(time*1000);
-          console.log("time:", ms);
+          console.log("Time:", ms);
           setTimeout(trigger, ms);
-          //remove old onclick
           $('#reflex-button').off();
         }
         
