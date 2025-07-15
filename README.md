@@ -2,12 +2,6 @@
 
 Reactify is a simple web-based application that tests how fast you can respond to visual changes. It measures your reaction time in milliseconds and helps you track your speed and improvement.
 
-## About
-
-- Modern UI: Allows users to measure their reflexes through a clean and interactive interface
-- Color Changes: Depending the current input/input request, the color of the circle changes
-- Basic Strucure: Easy to run locally as it only uses HTML, CSS, JS
-
 ## Features
 
 - The Function: Tests and displays your reaction time in milliseconds
